@@ -3,6 +3,10 @@
 final class PhpCsFixerLintEngine extends ArcanistLintEngine
 {
     const PHP_CS = '.php_cs';
+    private $folderExclusions = [
+        'Tests',
+        'Test',
+    ];
 
     public function buildLinters()
     {
@@ -15,7 +19,9 @@ final class PhpCsFixerLintEngine extends ArcanistLintEngine
                 unset($paths[$key]);
             }
 
-            if (preg_match('/\.(php)$/', $path)) {
+            if (preg_match('#\.(php)$#', $path)
+                && preg_match('#' . implode('|', $this->folderExclusions) . '#i', $path) === 0
+            ) {
                 $properPaths[] = $path;
             }
         }

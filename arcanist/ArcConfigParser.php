@@ -29,6 +29,12 @@ class ArcConfigParser
                 $localJsonArray['lint.fixer_paths'] = [self::DEFAULT_DIRECTORY];
             }
             file_put_contents($arcConfigFilename, stripslashes(json_encode($localJsonArray, JSON_PRETTY_PRINT)));
+        } else {
+            $localJsonArray['load'] = [self::LOAD];
+            $localJsonArray['lint.engine'] = self::LINT_ENGINE;
+            $localJsonArray['lint.fixer_paths'] = [self::DEFAULT_DIRECTORY];
         }
+
+        file_put_contents($arcConfigFilename, stripslashes(json_encode($localJsonArray, JSON_PRETTY_PRINT)));
     }
 }

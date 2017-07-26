@@ -4,17 +4,6 @@
     "type": "library",
     "repositories": [
         {
-            "packagist": false
-        },
-        {
-            "type": "composer",
-            "url": "https://toran.dev.lan/repo/private/"
-        },
-        {
-            "type": "composer",
-            "url": "https://toran.dev.lan/repo/packagist/"
-        },
-        {
             "type": "package",
             "package": {
                 "name": "phacility/arcanist",
@@ -29,7 +18,8 @@
     ],
     "require": {
         "php": "^5.5 || ^7.0",
-        "friendsofphp/php-cs-fixer": "2.2.3"
+        "friendsofphp/php-cs-fixer": "2.2.3",
+        "symfony/filesystem": "^2.0 || ^3.0"
     },
     "require-dev": {
         "phacility/arcanist": "dev-master"

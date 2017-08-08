@@ -1,9 +1,6 @@
 # lib-arcanist-php-cs-extension
-Library for php-cs-fixer arcanist lint extension
 
-## Usage
-
-This library integrates `php-cs-fixer` as lint engine to `arcanist`.
+This library integrates [PHP CS Fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer) as lint engine to `arcanist`.
 It allows developer to automatically run `php-cs-fixer` on `arc diff`.
 
 ### Before installing library

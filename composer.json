@@ -26,7 +26,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Paysera\\Arcanist\\": "arcanist"
+            "Paysera\\Composer\\": "composer"
         }
     }
 }

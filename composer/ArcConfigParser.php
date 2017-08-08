@@ -1,6 +1,6 @@
 <?php
 
-namespace Paysera\Arcanist;
+namespace Paysera\Composer;
 
 use Composer\Script\Event;
 

@@ -5,7 +5,7 @@ It allows developer to automatically run `php-cs-fixer` on `arc diff`.
 
 ### Before installing library
 
-To automatically configure your `.arcconfig` add `"Paysera\\Arcanist\\ArcConfigParser::parseArcConfig"` script to `post-install-cmd` and `post-update-cmd`
+To automatically configure your `.arcconfig` add `"Paysera\\Composer\\ArcConfigParser::parseArcConfig"` script to `post-install-cmd` and `post-update-cmd`
  or other `scipts` - just make sure this script is executed on `composer install`.
 
 ### Installation

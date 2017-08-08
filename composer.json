@@ -1,0 +1,32 @@
+{
+    "name": "paysera/lib-arcanist-php-cs-extension",
+    "description": "Php Cs Fixer arcanist extension",
+    "type": "library",
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "phacility/arcanist",
+                "version": "master",
+                "source": {
+                    "url": "https://github.com/phacility/arcanist.git",
+                    "type": "git",
+                    "reference": "master"
+                }
+            }
+        }
+    ],
+    "require": {
+        "php": "^5.5 || ^7.0",
+        "friendsofphp/php-cs-fixer": "^2.2"
+    },
+    "require-dev": {
+        "phacility/arcanist": "dev-master",
+        "composer/composer": "^1.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Paysera\\Arcanist\\": "arcanist"
+        }
+    }
+}

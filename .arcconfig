@@ -1,0 +1,9 @@
+{
+    "project_id": "lib-arcanist-php-cs-extension",
+    "conduit_uri": "https://phabricator.dev.lan",
+    "load": ["src/"],
+    "lint.engine": "PhpCsFixerLintEngine",
+    "lint.php_cs_fixer.fix_paths": ["src/", "arcanist/"],
+    "lint.php_cs_fixer.php_cs_binary": "vendor/bin/php-cs-fixer",
+    "lint.php_cs_fixer.php_cs_file": ".php_cs"
+}

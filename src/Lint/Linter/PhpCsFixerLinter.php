@@ -1,6 +1,6 @@
 <?php
 
-class PhpCsFixerLinter extends ArcanistExternalLinter
+class PhpCsFixerLinter extends \ArcanistExternalLinter
 {
     const CURRENT_CODE = "\033[31m";
     const REPLACEMENT_CODE = "\033[32m";
@@ -19,11 +19,21 @@ class PhpCsFixerLinter extends ArcanistExternalLinter
     ];
 
     /**
-     * @param string $config
+     * @var LinterConfiguration
      */
-    public function __construct($config)
+    private $configuration;
+
+    /**
+     * @param LinterConfiguration $configuration
+     */
+    public function __construct(LinterConfiguration $configuration = null)
     {
-        $this->addDefaultFlag('--config=' . $config);
+        if ($configuration === null) {
+            $configuration = new LinterConfiguration();
+        }
+
+        $this->configuration = $configuration;
+        $this->setPaths($this->configuration->getPaths());
     }
 
     public function getLinterName()
@@ -67,31 +77,27 @@ class PhpCsFixerLinter extends ArcanistExternalLinter
 
     public function getDefaultFlags()
     {
-        return $this->defaultFlags;
-    }
-
-    /**
-     * @param string $flag
-     */
-    private function addDefaultFlag($flag)
-    {
-        array_push($this->defaultFlags, $flag);
+        return array_merge(
+            $this->defaultFlags,
+            [sprintf('--config=%s', $this->configuration->getPhpCsFile())]
+        );
     }
 
     public function getDefaultBinary()
     {
-        return 'bin/php-cs-fixer';
+        return $this->configuration->getBinaryFile();
     }
 
     public function getVersion()
     {
         list($stdout) = execx('%C --version', $this->getExecutableCommand());
-    }
 
-    protected function getPathArgumentForLinterFuture($path)
-    {
-        $root = $this->getEngine()->getWorkingCopy()->getProjectRoot();
-        return str_replace($root . '/', '', $path);
+        $matches = null;
+        if (preg_match('#PHP CS Fixer (.*)#i', $stdout, $matches)) {
+            return $matches[1];
+        }
+
+        return null;
     }
 
     public function parseLinterOutput($path, $err, $stdout, $stderr)
@@ -99,7 +105,7 @@ class PhpCsFixerLinter extends ArcanistExternalLinter
         $json = phutil_json_decode($stdout);
         $messages = [];
         foreach ($json['files'] as $fix) {
-            $message = new ArcanistLintMessage();
+            $message = new \ArcanistLintMessage();
             $message->setName($fix['name']);
             $message->setPath($path);
 
@@ -117,9 +123,17 @@ class PhpCsFixerLinter extends ArcanistExternalLinter
                 "Applied fixers: \n" . self::FIXERS . implode("\n", $fix['appliedFixers']) . "\n\n"
                 . implode("\n", $diffArray)
             );
-            $message->setSeverity(ArcanistLintSeverity::SEVERITY_WARNING);
+            $message->setSeverity(\ArcanistLintSeverity::SEVERITY_WARNING);
             $messages[] = $message;
         }
+
         return $messages;
+    }
+
+    protected function getPathArgumentForLinterFuture($path)
+    {
+        $root = $this->getEngine()->getWorkingCopy()->getProjectRoot();
+
+        return str_replace($root . '/', '', $path);
     }
 }

@@ -18,15 +18,14 @@
     ],
     "require": {
         "php": "^5.5 || ^7.0",
-        "friendsofphp/php-cs-fixer": "2.2.3",
-        "symfony/filesystem": "^2.0 || ^3.0"
+        "friendsofphp/php-cs-fixer": "2.2.3"
     },
     "require-dev": {
-        "phacility/arcanist": "dev-master"
+        "phacility/arcanist": "dev-master",
+        "composer/composer": "^1.4"
     },
     "autoload": {
         "psr-4": {
-            "Paysera\\ArcanistPhpCsExtension\\": "src",
             "Paysera\\Arcanist\\": "arcanist"
         }
     }

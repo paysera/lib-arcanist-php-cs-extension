@@ -1,5 +1,5 @@
 # lib-arcanist-php-cs-extension
-Library for php-cs-fixer extension
+Library for php-cs-fixer arcanist extension
 
 ## Installation
 
@@ -7,8 +7,12 @@ Library for php-cs-fixer extension
  or other `scipts` - just make sure this script is executed on `composer install`.
 * `composer require paysera/lib-arcanist-php-cs-extension`.
 * Make sure `.php_cs` file is in project directory.
-* Make sure `.arcconfig` file contains: `"lint.engine": "PhpCsFixerLintEngine"`, `"load": [ "vendor/paysera/lib-arcanist-php-cs-extension/src/"]` and `"lint.fixer_paths" : ["src/"]`
-* Add `"lint.php_cs_file": ".php_cs"` to `.arcconfig` for custom configuration.
+* Make sure `.arcconfig` file contains following configurable entries:
+  * `"lint.engine": "PhpCsFixerLintEngine"`
+  * `"load": ["vendor/paysera/lib-arcanist-php-cs-extension/src/"]` 
+  * `"lint.php_cs_fixer.fix_paths" : ["src/"]`
+  * `"lint.php_cs_fixer.php_cs_binary" : "{your-bin-dir}/php-cs-fixer"`
+  * `"lint.php_cs_fixer.php_cs_file": ".php_cs"`
 
 ## Usage
 

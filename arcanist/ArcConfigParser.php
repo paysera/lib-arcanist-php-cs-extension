@@ -2,39 +2,40 @@
 
 namespace Paysera\Arcanist;
 
-use Symfony\Component\Filesystem\Filesystem;
+use Composer\Script\Event;
 
 class ArcConfigParser
 {
     const LOAD = 'vendor/paysera/lib-arcanist-php-cs-extension/src/';
     const LINT_ENGINE = 'PhpCsFixerLintEngine';
-    const DEFAULT_DIRECTORY = 'src/';
 
-    public static function parseArcConfig()
+    public static function parseArcConfig(Event $event)
     {
-        $fileSystem = new Filesystem();
-        $arcConfigFilename = '.arcconfig';
+        $arcConfigFile = '.arcconfig';
 
-        if ($fileSystem->exists($arcConfigFilename)) {
-            $localJsonArray = json_decode(file_get_contents($arcConfigFilename), true);
-            if (!isset($localJsonArray['load'])) {
-                $localJsonArray['load'] = [self::LOAD];
-            }
+        $phpCsBinary = $event->getComposer()->getConfig()->get('bin-dir') . '/php-cs-fixer';
 
-            if (!isset($localJsonArray['lint.engine'])) {
-                $localJsonArray['lint.engine'] = self::LINT_ENGINE;
-            }
-
-            if (!isset($localJsonArray['lint.fixer_paths'])) {
-                $localJsonArray['lint.fixer_paths'] = [self::DEFAULT_DIRECTORY];
-            }
-            file_put_contents($arcConfigFilename, stripslashes(json_encode($localJsonArray, JSON_PRETTY_PRINT)));
-        } else {
-            $localJsonArray['load'] = [self::LOAD];
-            $localJsonArray['lint.engine'] = self::LINT_ENGINE;
-            $localJsonArray['lint.fixer_paths'] = [self::DEFAULT_DIRECTORY];
+        $arcConfig = [];
+        if (file_exists($arcConfigFile)) {
+            $arcConfig = json_decode(file_get_contents($arcConfigFile), true);
         }
 
-        file_put_contents($arcConfigFilename, stripslashes(json_encode($localJsonArray, JSON_PRETTY_PRINT)));
+        if (!isset($arcConfig['load'])) {
+            $arcConfig['load'] = [self::LOAD];
+        }
+        if (!isset($arcConfig['lint.engine'])) {
+            $arcConfig['lint.engine'] = self::LINT_ENGINE;
+        }
+        if (!isset($arcConfig['lint.php_cs_fixer.fix_paths'])) {
+            $arcConfig['lint.php_cs_fixer.fix_paths'] = [\PhpCsFixerLintEngine::SRC_DIRECTORY];
+        }
+        if (!isset($arcConfig['lint.php_cs_fixer.php_cs_binary'])) {
+            $arcConfig['lint.php_cs_fixer.php_cs_binary'] = $phpCsBinary;
+        }
+        if (!isset($arcConfig['lint.php_cs_fixer.php_cs_file'])) {
+            $arcConfig['lint.php_cs_fixer.php_cs_file'] = \PhpCsFixerLintEngine::PHP_CS_FILE;
+        }
+
+        file_put_contents($arcConfigFile, stripslashes(json_encode($arcConfig, JSON_PRETTY_PRINT)));
     }
 }

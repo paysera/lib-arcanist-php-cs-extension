@@ -3,8 +3,9 @@
 phutil_register_library_map([
     '__library_version__' => 2,
     'class' => [
-        'PhpCsFixerLintEngine' => 'lint/engine/PhpCsFixerLintEngine.php',
-        'PhpCsFixerLinter' => 'lint/linter/PhpCsFixerLinter.php',
+        'PhpCsFixerLintEngine' => 'Lint/Engine/PhpCsFixerLintEngine.php',
+        'PhpCsFixerLinter' => 'Lint/Linter/PhpCsFixerLinter.php',
+        'LinterConfiguration' => 'Lint/Linter/LinterConfiguration.php',
     ],
     'function' => [],
     'xmap' => [

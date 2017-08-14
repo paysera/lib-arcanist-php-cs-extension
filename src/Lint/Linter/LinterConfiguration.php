@@ -21,6 +21,11 @@ class LinterConfiguration
      */
     private $paths;
 
+    public function __construct()
+    {
+        $this->paths = [];
+    }
+
     /**
      * @return string
      */

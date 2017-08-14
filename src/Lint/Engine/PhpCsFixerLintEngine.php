@@ -2,10 +2,6 @@
 
 final class PhpCsFixerLintEngine extends \ArcanistLintEngine
 {
-    const PHP_CS_FILE = '.php_cs';
-    const SRC_DIRECTORY = 'src/';
-    const BINARY_FILE = 'bin/php-cs-fixer';
-
     private $folderExclusions = [
         'Tests/',
         'Test/',
@@ -19,8 +15,10 @@ final class PhpCsFixerLintEngine extends \ArcanistLintEngine
         /** @var \ArcanistConfigurationManager $configManager */
         $configManager = $this->getConfigurationManager();
 
-        $fixerPaths = $configManager->getConfigFromAnySource('lint.php_cs_fixer.fix_paths', [self::SRC_DIRECTORY]);
-        $binaryPath = $configManager->getConfigFromAnySource('lint.php_cs_fixer.php_cs_binary', self::BINARY_FILE);
+        $fixerPaths = $configManager
+            ->getConfigFromAnySource('lint.php_cs_fixer.fix_paths', [LinterConfiguration::SRC_DIRECTORY]);
+        $binaryPath = $configManager
+            ->getConfigFromAnySource('lint.php_cs_fixer.php_cs_binary', LinterConfiguration::BINARY_FILE);
 
         foreach ($paths as $key => $path) {
             if (!file_exists($this->getFilePathOnDisk($path))) {
@@ -36,7 +34,8 @@ final class PhpCsFixerLintEngine extends \ArcanistLintEngine
             }
         }
 
-        $phpCsFile = $configManager->getConfigFromAnySource('lint.php_cs_fixer.php_cs_file', self::PHP_CS_FILE);
+        $phpCsFile = $configManager
+            ->getConfigFromAnySource('lint.php_cs_fixer.php_cs_file', LinterConfiguration::PHP_CS_FILE);
 
         $linterConfiguration = new LinterConfiguration();
         $linterConfiguration

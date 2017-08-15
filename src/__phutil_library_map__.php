@@ -6,6 +6,7 @@ phutil_register_library_map([
         'PhpCsFixerLintEngine' => 'Lint/Engine/PhpCsFixerLintEngine.php',
         'PhpCsFixerLinter' => 'Lint/Linter/PhpCsFixerLinter.php',
         'LinterConfiguration' => 'Lint/Linter/LinterConfiguration.php',
+        'LintMessageBuilder' => 'Lint/Linter/LintMessageBuilder.php',
     ],
     'function' => [],
     'xmap' => [

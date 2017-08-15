@@ -2,11 +2,6 @@
 
 class PhpCsFixerLinter extends \ArcanistExternalLinter
 {
-    const CURRENT_CODE = "\033[31m";
-    const REPLACEMENT_CODE = "\033[32m";
-    const UNMODIFIED_CODE = "\033[0m";
-    const FIXERS = "\033[36m";
-
     /**
      * @var array
      */
@@ -24,6 +19,11 @@ class PhpCsFixerLinter extends \ArcanistExternalLinter
     private $configuration;
 
     /**
+     * @var LintMessageBuilder
+     */
+    private $lintMessageBuilder;
+
+    /**
      * @param LinterConfiguration $configuration
      */
     public function __construct(LinterConfiguration $configuration = null)
@@ -33,6 +33,8 @@ class PhpCsFixerLinter extends \ArcanistExternalLinter
         }
 
         $this->configuration = $configuration;
+        $this->lintMessageBuilder = new LintMessageBuilder();
+
         $this->setPaths($this->configuration->getPaths());
     }
 
@@ -105,27 +107,7 @@ class PhpCsFixerLinter extends \ArcanistExternalLinter
         $json = phutil_json_decode($stdout);
         $messages = [];
         foreach ($json['files'] as $fix) {
-            $message = new \ArcanistLintMessage();
-            $message->setName($fix['name']);
-            $message->setPath($path);
-            $message->setCode('PHPCS.' . $path);
-
-            $diffArray = explode("\n", $fix['diff']);
-            foreach ($diffArray as &$diff) {
-                if (preg_match('#^-#', $diff)) {
-                    $diff = self::CURRENT_CODE . $diff;
-                } elseif (preg_match('#^\+#', $diff)) {
-                    $diff = self::REPLACEMENT_CODE . $diff;
-                } else {
-                    $diff = self::UNMODIFIED_CODE . $diff;
-                }
-            }
-            $message->setDescription(
-                "Applied fixers: \n" . self::FIXERS . implode("\n", $fix['appliedFixers']) . "\n\n"
-                . implode("\n", $diffArray)
-            );
-            $message->setSeverity(\ArcanistLintSeverity::SEVERITY_WARNING);
-            $messages[] = $message;
+            $messages = array_merge($messages, $this->lintMessageBuilder->buildLintMessages($path, $fix));
         }
 
         return $messages;
@@ -136,5 +118,13 @@ class PhpCsFixerLinter extends \ArcanistExternalLinter
         $root = $this->getEngine()->getWorkingCopy()->getProjectRoot();
 
         return str_replace($root . '/', '', $path);
+    }
+
+    protected function didResolveLinterFutures(array $futures)
+    {
+        /** @var ExecFuture $future */
+        foreach ($futures as $future) {
+            $future->discardBuffers();
+        }
     }
 }

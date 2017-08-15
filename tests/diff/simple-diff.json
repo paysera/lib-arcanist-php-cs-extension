@@ -1,0 +1,17 @@
+{
+  "files": [
+    {
+      "name": "lib-arcanist-php-cs-extension\/src\/Lint\/Linter\/LintMessageBuilder.php",
+      "appliedFixers": [
+        "pre_increment",
+        "phpdoc_separation",
+        "phpdoc_align"
+      ],
+      "diff": "--- Original\n+++ New\n@@ @@\n      * @param string $path\n-     * @param array $fixData\n+     * @param array  $fixData\n+     *\n@@ @@\n         $messages = [];\n-        for ($i = 0; $i < count($rows); $i++) {\n+        for ($i = 0; $i < count($rows); ++$i) {\n@@ @@\n                         }\n-                        $matchedInformational++;\n+                        ++$matchedInformational;\n@@ @@\n                                 }\n-                                $matchedRemovals++;\n+                                ++$matchedRemovals;\n@@ @@\n                                 }\n-                                $matchedAdditions++;\n+                                ++$matchedAdditions;\n@@ @@\n      * @param $diff\n+     *\n      * @return array[removals, additions, informational]\n      *\/\n     private function extractDiffParts($diff)\n     {\n         $diffParts = [];\n         $parts = explode('@@ @@', $diff);\n         array_shift($parts);\n         $parts = array_values($parts);\n \n         foreach ($parts as $key => $part) {\n             $lines = array_map('trim', explode(\"\\n\", trim($part)));\n             foreach ($lines as $line) {\n                 if (strpos($line, '-') === 0) {\n                     $diffParts[$key]['removals'][] = $line;\n                 } elseif (strpos($line, '+') === 0) {\n                     $diffParts[$key]['additions'][] = $line;\n                 } else {\n                     if (!isset($diffParts[$key]['additions'])) {\n                         $diffParts[$key]['informational'][] = $line;\n                     }\n                 }\n             }\n         }\n \n         return $diffParts;\n     }\n \n     private function createLintMessage($path, array $diffPart, $line, array $fixData)\n     {\n         $message = new \\ArcanistLintMessage();\n         $message->setName(implode(', ', $fixData['appliedFixers']));\n         $message->setPath($path);\n         $message->setCode('PHP_CS_FIXER');\n         $message->setLine($line);\n         $message->setSeverity(\\ArcanistLintSeverity::SEVERITY_WARNING);\n \n         $description = [\"Please consider applying these changes:\\n```\"];\n         if (isset($diffPart['removals'])) {\n             $removals = array_map(\n                 function ($item) { return '- ' . trim(ltrim($item, '-')); },\n                 $diffPart['removals']\n             );\n             $description = array_merge($description, $removals);\n         }\n         if (isset($diffPart['additions'])) {\n             $additions = array_map(\n                 function ($item) { return '+ ' . trim(ltrim($item, '+')); },\n                 $diffPart['additions']\n             );\n             $description = array_merge($description, $additions);\n         }\n         $description[] = '```';\n \n         $message->setDescription(implode(\"\\n\", $description));\n \n         return $message;\n     }\n }\n \n"
+    }
+  ],
+  "time": {
+    "total": 0.326
+  },
+  "memory": 10
+}

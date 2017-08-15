@@ -33,10 +33,10 @@
         "friendsofphp/php-cs-fixer": "^2.2"
     },
     "require-dev": {
-        "phacility/arcanist": "dev-master",
+        "phacility/arcanist": "dev-master#5eda40337bb4135ca4929617602686302edc7cc0",
         "composer/composer": "^1.4",
         "phpunit/phpunit": "^5.0",
-        "phacility/libphutil": "dev-master"
+        "phacility/libphutil": "dev-master#276f6d304b69767d48f88f65484ce310ee2cf3af"
     },
     "autoload": {
         "psr-4": {

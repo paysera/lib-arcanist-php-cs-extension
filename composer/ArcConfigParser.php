@@ -2,6 +2,7 @@
 
 namespace Paysera\Composer;
 
+use Composer\Config;
 use Composer\Script\Event;
 
 class ArcConfigParser
@@ -13,7 +14,8 @@ class ArcConfigParser
     {
         $arcConfigFile = '.arcconfig';
 
-        $phpCsBinary = $event->getComposer()->getConfig()->get('bin-dir') . '/php-cs-fixer';
+        $phpCsBinary = $event->getComposer()->getConfig()
+                ->get('bin-dir', Config::RELATIVE_PATHS) . '/php-cs-fixer';
 
         $arcConfig = [];
         if (file_exists($arcConfigFile)) {

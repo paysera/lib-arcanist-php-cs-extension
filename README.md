@@ -27,34 +27,43 @@ $ arc lint
  OKAY  No lint warnings.
 ```
 
-If `php-cs-fixer` reports errors, standard `diff` will be displayed:
+If `php-cs-fixer` reports errors, arcanist `diff` will be displayed:
 ```
 $ arc lint
 
 >>> Lint for src/Acme/Bundle/AcmeBundle/Controller/DefaultController.php:
 
 
-   Warning  () src/Acme/Bundle/AcmeBundle/Controller/DefaultController.php
-    Applied fixers: 
-    array_syntax
-    
-    --- Original
-    +++ New
-    @@ @@
-     
-             return $this->render(
-    -            'AcmeAcmeBundle:Controller:default.html.twig', array(
-    -                'is_owner' => $owner,
-    -                'event' => $event,
-    -            )
-             );
-             return $this->render(
-    +            'AcmeAcmeBundle:Controller:default.html.twig',
-    +            [
-    +                'is_owner' => $owner,
-    +                'event' => $event,
-    +            ]
-             );
-         }
-     }
+   Warning  (PHP_CS_FIXER) pre_increment, phpdoc_separation, phpdoc_align
+    Please consider applying these changes:
+    ```
+    - * @param array $fixData
+    + * @param array  $fixData
+    + *
+    ```
+
+               4 {
+               5     /**
+               6      * @param string $path
+    >>>        7      * @param array $fixData
+               8      * @return \ArcanistLintMessage[]
+               9      */
+              10     public function buildLintMessages($path, array $fixData)
+
+   Warning  (PHP_CS_FIXER) pre_increment, phpdoc_separation, phpdoc_align
+    Please consider applying these changes:
+    ```
+    - for ($i = 0; $i < count($rows); $i++) {
+    + for ($i = 0; $i < count($rows); ++$i) {
+    ```
+
+              13         $rows = array_map('trim', file($path));
+              14 
+              15         $messages = [];
+    >>>       16         for ($i = 0; $i < count($rows); $i++) {
+              17             foreach ($diffParts as $diffPart) {
+              18                 if (isset($diffPart['informational'])) {
+              19                     $matchedInformational = 0;
+
 ```
+If `Excuse` message will be provided, these messages will be sent to `Phabricator`.

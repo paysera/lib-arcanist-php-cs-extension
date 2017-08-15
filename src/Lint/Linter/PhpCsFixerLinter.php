@@ -108,6 +108,7 @@ class PhpCsFixerLinter extends \ArcanistExternalLinter
             $message = new \ArcanistLintMessage();
             $message->setName($fix['name']);
             $message->setPath($path);
+            $message->setCode('PHPCS.' . $path);
 
             $diffArray = explode("\n", $fix['diff']);
             foreach ($diffArray as &$diff) {

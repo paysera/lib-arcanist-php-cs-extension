@@ -113,18 +113,15 @@ class PhpCsFixerLinter extends \ArcanistExternalLinter
         return $messages;
     }
 
+    public function shouldExpectCommandErrors()
+    {
+        return true;
+    }
+
     protected function getPathArgumentForLinterFuture($path)
     {
         $root = $this->getEngine()->getWorkingCopy()->getProjectRoot();
 
         return str_replace($root . '/', '', $path);
-    }
-
-    protected function didResolveLinterFutures(array $futures)
-    {
-        /** @var ExecFuture $future */
-        foreach ($futures as $future) {
-            $future->discardBuffers();
-        }
     }
 }

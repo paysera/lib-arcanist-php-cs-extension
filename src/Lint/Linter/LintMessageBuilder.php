@@ -2,6 +2,8 @@
 
 class LintMessageBuilder
 {
+    const CHANGE_NOTATION_REGEX = '#^(%s)(?:\s|[a-zA-Z])#';
+
     /**
      * @param string $path
      * @param array $fixData
@@ -18,7 +20,7 @@ class LintMessageBuilder
                 if (isset($diffPart['informational'])) {
                     $matchedInformational = 0;
                     foreach ($diffPart['informational'] as $key => $item) {
-                        if ($rows[$i + $key] !== $item) {
+                        if (!isset($rows[$i + $key]) || $rows[$i + $key] !== $item) {
                             break 2;
                         }
                         $matchedInformational++;
@@ -28,8 +30,9 @@ class LintMessageBuilder
                         if (isset($diffPart['removals'])) {
                             $matchedRemovals = 0;
                             foreach ($diffPart['removals'] as $key => $removal) {
-                                if ($rows[$i + $key] !== trim(ltrim($removal, '-'))) {
-                                    break 1;
+                                $realLine = $this->removeChangeNotationChar($removal, '-');
+                                if (!isset($rows[$i + $key]) || $rows[$i + $key] !== $realLine) {
+                                    break 2;
                                 }
                                 $matchedRemovals++;
                             }
@@ -40,26 +43,55 @@ class LintMessageBuilder
                                 break 1;
                             }
                         } elseif (isset($diffPart['additions'])) {
-                            $matchedAdditions = 0;
-                            foreach ($diffPart['additions'] as $key => $removal) {
-                                if ($rows[$i + $key] !== trim(ltrim($removal, '+'))) {
-                                    break 1;
-                                }
-                                $matchedAdditions++;
-                            }
-                            if ($matchedAdditions === count($diffPart['additions'])) {
-                                $messages[] = $this->createLintMessage($path, $diffPart, $i + 1, $fixData);
-                                $i += $matchedAdditions;
-                                array_shift($diffParts);
-                                break 1;
-                            }
+                            $messages[] = $this->createLintMessage($path, $diffPart, $i + 1, $fixData);
+                            array_shift($diffParts);
+                            break 1;
                         }
                     }
                 }
             }
         }
 
+        if (count($diffParts) > 0) {
+            $message = new \ArcanistLintMessage();
+            $message->setName(implode(', ', $fixData['appliedFixers']));
+            $message->setPath($path);
+            $message->setCode('PHP_CS_FIXER');
+            $message->setSeverity(\ArcanistLintSeverity::SEVERITY_WARNING);
+            $message->setDescription(sprintf(
+                "Lint engine was unable to extract exact line number\n"
+                . "Please consider applying these changes:\n```%s```",
+                $fixData['diff']
+            ));
+        }
+
         return $messages;
+    }
+
+    /**
+     * @param string $string
+     * @param string $char
+     * @return string
+     */
+    private function removeChangeNotationChar($string, $char)
+    {
+        return trim(preg_replace(
+            sprintf(self::CHANGE_NOTATION_REGEX, preg_quote($char, '#')),
+            '',
+            $string
+        ));
+    }
+
+    /**
+     * @param string $string
+     * @param string $char
+     * @return bool
+     */
+    private function isChangeNotationChar($string, $char)
+    {
+        return preg_match(
+                sprintf(self::CHANGE_NOTATION_REGEX, preg_quote($char, '#')), $string
+            ) === 1;
     }
 
     /**
@@ -76,9 +108,9 @@ class LintMessageBuilder
         foreach ($parts as $key => $part) {
             $lines = array_map('trim', explode("\n", trim($part)));
             foreach ($lines as $line) {
-                if (strpos($line, '-') === 0) {
+                if ($this->isChangeNotationChar($line, '-') && strlen($line) > 1) {
                     $diffParts[$key]['removals'][] = $line;
-                } elseif (strpos($line, '+') === 0) {
+                } elseif ($this->isChangeNotationChar($line, '+') && strlen($line) > 1) {
                     $diffParts[$key]['additions'][] = $line;
                 } else {
                     if (!isset($diffParts[$key]['additions'])) {

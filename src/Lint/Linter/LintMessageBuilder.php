@@ -44,6 +44,7 @@ class LintMessageBuilder
                             }
                         } elseif (isset($diffPart['additions'])) {
                             $messages[] = $this->createLintMessage($path, $diffPart, $i + 1, $fixData);
+                            $i--;
                             array_shift($diffParts);
                             break 1;
                         }

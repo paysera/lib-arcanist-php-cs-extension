@@ -211,7 +211,12 @@ class LintMessageBuilder
         $message->setLine($line);
         $message->setSeverity(\ArcanistLintSeverity::SEVERITY_WARNING);
 
-        $description = ["Please consider applying these changes:\n```"];
+        $description = [
+            "Please consider applying these changes:\n```",
+            "--- Original",
+            "+++ New",
+            "@@ @@"
+        ];
         if (isset($diffPart['removals'])) {
             $removals = array_map(
                 function ($item) { return '- ' . trim(ltrim($item, '-')); },

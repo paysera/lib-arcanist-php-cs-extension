@@ -1,0 +1,37 @@
+{
+  "files": [
+    {
+      "name": "src\/src\/Evp\/Bundle\/TicketBundle\/Service\/OrderManager.php",
+      "appliedFixers": [
+        "Paysera\/php_basic_code_style_namespaces_and_use_statements",
+        "no_useless_else",
+        "Paysera\/php_basic_code_style_splitting_in_several_lines",
+        "array_syntax",
+        "Paysera\/php_basic_feature_type_hinting",
+        "Paysera\/php_basic_feature_condition_results",
+        "Paysera\/php_basic_feature_checking_explicitly",
+        "Paysera\/php_basic_comment_php_doc_on_methods",
+        "Paysera\/php_basic_comment_comment_styles",
+        "Paysera\/php_basic_code_style_chained_method_calls",
+        "Paysera\/php_basic_feature_unnecessary_structures",
+        "modernize_types_casting",
+        "Paysera\/php_basic_feature_unnecessary_variables",
+        "Paysera\/php_basic_feature_type_hinting_arguments",
+        "no_trailing_whitespace",
+        "phpdoc_trim",
+        "no_whitespace_in_blank_line",
+        "no_extra_consecutive_blank_lines",
+        "blank_line_after_namespace",
+        "braces",
+        "Paysera\/php_basic_comment_php_doc_contents",
+        "Paysera\/psr_2_line_length",
+        "single_blank_line_at_eof"
+      ],
+      "diff": "--- Original\n+++ New\n@@ @@\n <?php\n \n namespace Evp\\Bundle\\TicketBundle\\Service;\n \n+use DateTime;\n@@ @@\n         $this->apiTicketManager = $apiTicketManager;\n-    }\n+    } \/\/ TODO: Class(Narrowest Interface): \"EntityManager(ObjectManager) | OrderRepository(ObjectRepository) | PriceTypeRepository(ObjectRepository) | TicketRepository(ObjectRepository) | TicketTypeRepository(ObjectRepository) | \" - PhpBasic convention 3.18: We always type hint narrowest possible interface \n@@ @@\n     }\n-    \n+\n@@ @@\n     }\n-    \n+\n@@ @@\n      * Removes OrderDetails & Tickets by provided User, Event, OrderDetails\n-     *\n-     * @param \\Evp\\Bundle\\TicketBundle\\Entity\\User $user\n-     * @param \\Evp\\Bundle\\TicketBundle\\Entity\\Event $event\n-     * @param \\Evp\\Bundle\\TicketBundle\\Entity\\Step\\OrderDetails $orderDetails\n+     * @param User $user\n+     * @param Event $event\n+     * @param OrderDetails $orderDetails\n      *\/\n-    public function removeOrderDetailsAndTickets(User $user, Event $event, OrderDetails $orderDetails) {\n-        $tickets = $this->ticketRepository->findBy(array(\n+    public function removeOrderDetailsAndTickets(User $user, Event $event, OrderDetails $orderDetails)\n+    {\n+        $tickets = $this->ticketRepository->findBy([\n             'user' => $user,\n             'event' => $event,\n             'orderDetails' => $orderDetails,\n-        ));\n+        ]);\n@@ @@\n      * Extends the order reservation time for a little bit more\n-     *\n      * @param Order $order\n      *\/\n-    public function extendShortTermReservationTime(Order $order) {\n+    public function extendShortTermReservationTime(Order $order)\n+    {\n@@ @@\n      * Updates and persists TicketCount & Price fields in Order Entity\n-     *\n@@ @@\n     {\n-        $totalPrice = $this->computeTotalPrice($order);\n-        return floatval($totalPrice) === floatval(0);\n+        return (float) $this->computeTotalPrice($order) === (float) 0;\n@@ @@\n      * This is done once the user is redirected to the payment system\n-     *\n      * @param Order $order\n      *\/\n-    public function extendLongTermReservationTime(Order $order) {\n+    public function extendLongTermReservationTime(Order $order)\n+    {\n@@ @@\n             }\n-            if ($ticket->getPrice() !== $ticket->getPriceType()->getPrice()) {\n+            if ($ticket->getPrice() !== $ticket->getPriceType()\n+                    ->getPrice()) {\n                 return $result\n                     ->setCanConfirm(false)\n                     ->setMessage(OrderConfirmationResult::MESSAGE_PRICE_CHANGED)\n+                \n@@ @@\n      *\n-     * @param Order $order\n+     * @param Order|null $order\n      * @return bool\n      *\/\n-    public function isOrderValidForInvoice(Order $order = null) {\n+    public function isOrderValidForInvoice(Order $order = null)\n+    {\n@@ @@\n         }\n-        if ($order->getInvoice() === null) {\n-            return false;\n-        }\n-        return true;\n+        return !($order->getInvoice() === null);\n@@ @@\n \n-    \/**\n-     * @param Order $order\n-     *\/\n@@ @@\n \n-    \/**\n-     * @param Order $order\n-     *\/\n@@ @@\n             $seat = $ticket->getSeat();\n-            if (!empty($seat)) {\n+            if (count($seat) > 0) {\n@@ @@\n         $orderDetailsRepository = $this->entityManager->getRepository('Evp\\Bundle\\TicketBundle\\Entity\\Step\\OrderDetails');\n-        $currentOrderDetail = $orderDetailsRepository->findOneBy(array(\n+        $currentOrderDetail = $orderDetailsRepository->findOneBy([\n             'ticketType' => $ticketType,\n             'user' => $user,\n-        ));\n+        ]);\n         $totalDetails = $orderDetailsRepository->getAllByUserAndEvent($user, $ticketType->getEvent());\n \n         $currentlyExistingCount = 0;\n         foreach ($totalDetails as $totalDetail) {\n             if ($currentOrderDetail !== null) {\n-                if ($totalDetail->getId() !== $currentOrderDetail->getId()) {\n+                if ($totalDetail->getId() !== $currentOrderDetail->getId()) { \/\/ TODO: \"if\" - PhpBasic convention 3.10: We avoid unnecessary structures\n@@ @@\n      * @throws InvalidTicketCountException\n+     * @throws \\InvalidArgumentException\n@@ @@\n             return $availabilityResult;\n-        }\n-\n-        elseif ($ticketType->getMaxTicketsPerUser() !== null) {\n-            if ($countForTicketType > $ticketType->getMaxTicketsPerUser()) {\n+        } elseif ($ticketType->getMaxTicketsPerUser() !== null) {\n+            if ($countForTicketType > $ticketType->getMaxTicketsPerUser()) { \/\/ TODO: \"if\" - PhpBasic convention 3.10: We avoid unnecessary structures\n@@ @@\n                     return $availabilityResult->setAvailable(false);\n-                } else {\n-                    return $availabilityResult->setAvailable(true);\n                 }\n-            } else {\n-                if ($countForTicketType > $maxAllowed) {\n-                    return $availabilityResult->setAvailable(false);\n-                } else {\n-                    return $availabilityResult->setAvailable(true);\n-                }\n+                return $availabilityResult->setAvailable(true);\n             }\n+            if ($countForTicketType > $maxAllowed) {\n+                return $availabilityResult->setAvailable(false);\n+            }\n+            return $availabilityResult->setAvailable(true);\n@@ @@\n      *\/\n-    public function getOrderDetailsForOrder($order)\n+    public function getOrderDetailsForOrder(Order $order)\n@@ @@\n      *\n-     * @return \\DateTime\n+     * @return DateTime\n@@ @@\n      * Confirms the order and updates all of the needed fields\n-     *\n@@ @@\n      * Publishes an order to the ticket\/invoice generation queue\n-     *\n@@ @@\n }\n+\n+\/\/ TODO: Line (462) exceeds SOFT_LIMIT of 120 characters; contains 122 characters\n \n"
+    }
+  ],
+  "time": {
+    "total": 2.932
+  },
+  "memory": 12
+}

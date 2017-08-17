@@ -2,7 +2,7 @@
 
 class LintMessageBuilder
 {
-    const CHANGE_NOTATION_REGEX = '#^(%s)(?:\s|[a-zA-Z])#';
+    const CHANGE_NOTATION_REGEX = '#^(%s)(?:\s|[a-zA-Z]|$)#';
 
     /**
      * @param string $path
@@ -38,7 +38,7 @@ class LintMessageBuilder
                             }
                             if ($matchedRemovals === count($diffPart['removals'])) {
                                 $messages[] = $this->createLintMessage($path, $diffPart, $i + 1, $fixData);
-                                $i += $matchedRemovals;
+                                $i += $matchedRemovals - 1;
                                 array_shift($diffParts);
                                 break 1;
                             }
@@ -47,6 +47,21 @@ class LintMessageBuilder
                             array_shift($diffParts);
                             break 1;
                         }
+                    }
+                } elseif (isset($diffPart['removals'])) {
+                    $matchedRemovals = 0;
+                    foreach ($diffPart['removals'] as $key => $removal) {
+                        $realLine = $this->removeChangeNotationChar($removal, '-');
+                        if (!isset($rows[$i + $key]) || $rows[$i + $key] !== $realLine) {
+                            break 2;
+                        }
+                        $matchedRemovals++;
+                    }
+                    if ($matchedRemovals === count($diffPart['removals'])) {
+                        $messages[] = $this->createLintMessage($path, $diffPart, $i + 1, $fixData);
+                        $i += $matchedRemovals - 1;
+                        array_shift($diffParts);
+                        break 1;
                     }
                 }
             }
@@ -63,6 +78,8 @@ class LintMessageBuilder
                 . "Please consider applying these changes:\n```%s```",
                 $fixData['diff']
             ));
+
+            $messages[] = $message;
         }
 
         return $messages;
@@ -104,23 +121,69 @@ class LintMessageBuilder
         $parts = explode('@@ @@', $diff);
         array_shift($parts);
         $parts = array_values($parts);
-
         foreach ($parts as $key => $part) {
-            $lines = array_map('trim', explode("\n", trim($part)));
+            $parts[$key] = array_map('trim', explode("\n", trim($part)));
+        }
+
+        $parts = $this->splitCombinedDiffs($parts);
+
+        foreach ($parts as $key => $lines) {
             foreach ($lines as $line) {
-                if ($this->isChangeNotationChar($line, '-') && strlen($line) > 1) {
+                if ($this->isChangeNotationChar($line, '-')) {
                     $diffParts[$key]['removals'][] = $line;
-                } elseif ($this->isChangeNotationChar($line, '+') && strlen($line) > 1) {
+                } elseif ($this->isChangeNotationChar($line, '+')) {
                     $diffParts[$key]['additions'][] = $line;
                 } else {
-                    if (!isset($diffParts[$key]['additions'])) {
-                        $diffParts[$key]['informational'][] = $line;
+                    $diffParts[$key]['informational'][] = $line;
+                }
+            }
+        }
+
+        $diffParts = array_filter($diffParts, function ($item) {
+            if (
+                isset($item['informational'])
+                && (!isset($item['removals']) && !isset($item['additions']))
+            ) {
+                return false;
+            }
+            return true;
+        });
+
+        return $diffParts;
+    }
+
+    private function splitCombinedDiffs(array $parts)
+    {
+        foreach ($parts as $key => $lines) {
+            $removals = 0;
+            $lastRemovalNo = 0;
+            $additions = 0;
+            $lastAdditionNo = 0;
+            foreach ($lines as $no => $line) {
+                if ($this->isChangeNotationChar($line, '-')) {
+                        $removals++;
+                        $lastRemovalNo = $no + 1;
+                } elseif ($this->isChangeNotationChar($line, '+')) {
+                    $additions++;
+                    $lastAdditionNo = $no + 1;
+                } else {
+                    if ($additions !== 0) {
+                        $part1 = array_slice($lines, 0, $lastAdditionNo);
+                        $part2 = array_slice($lines, $lastAdditionNo);
+                        array_splice($parts, $key,1, [$part1, $part2]);
+                        return $this->splitCombinedDiffs($parts);
+                    }
+                    if ($removals !== 0) {
+                        $part1 = array_slice($lines, 0, $lastRemovalNo);
+                        $part2 = array_slice($lines, $lastRemovalNo);
+                        array_splice($parts, $key,1, [$part1, $part2]);
+                        return $this->splitCombinedDiffs($parts);
                     }
                 }
             }
         }
 
-        return $diffParts;
+        return $parts;
     }
 
     private function createLintMessage($path, array $diffPart, $line, array $fixData)

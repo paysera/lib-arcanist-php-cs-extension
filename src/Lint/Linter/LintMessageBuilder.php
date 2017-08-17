@@ -112,8 +112,8 @@ class LintMessageBuilder
     }
 
     /**
-     * @param $diff
-     * @return array[removals, additions, informational]
+     * @param string $diff
+     * @return array
      */
     private function extractDiffParts($diff)
     {
@@ -168,15 +168,11 @@ class LintMessageBuilder
                     $lastAdditionNo = $no + 1;
                 } else {
                     if ($additions !== 0) {
-                        $part1 = array_slice($lines, 0, $lastAdditionNo);
-                        $part2 = array_slice($lines, $lastAdditionNo);
-                        array_splice($parts, $key,1, [$part1, $part2]);
+                        $this->spliceLines($lines, $parts, $key, $lastAdditionNo);
                         return $this->splitCombinedDiffs($parts);
                     }
                     if ($removals !== 0) {
-                        $part1 = array_slice($lines, 0, $lastRemovalNo);
-                        $part2 = array_slice($lines, $lastRemovalNo);
-                        array_splice($parts, $key,1, [$part1, $part2]);
+                        $this->spliceLines($lines, $parts, $key, $lastRemovalNo);
                         return $this->splitCombinedDiffs($parts);
                     }
                 }
@@ -186,6 +182,26 @@ class LintMessageBuilder
         return $parts;
     }
 
+    /**
+     * @param array $lines
+     * @param array $parts
+     * @param int $index
+     * @param int $position
+     */
+    private function spliceLines(array $lines, array &$parts, $index, $position)
+    {
+        $part1 = array_slice($lines, 0, $position);
+        $part2 = array_slice($lines, $position);
+        array_splice($parts, $index,1, [$part1, $part2]);
+    }
+
+    /**
+     * @param $path
+     * @param array $diffPart
+     * @param int $line
+     * @param array $fixData
+     * @return ArcanistLintMessage
+     */
     private function createLintMessage($path, array $diffPart, $line, array $fixData)
     {
         $message = new \ArcanistLintMessage();

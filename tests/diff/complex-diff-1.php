@@ -31,7 +31,7 @@ use Evp\Bundle\TicketManufacturingBundle\Service\Publisher\TicketManufacturingPu
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 
-class OrderManager
+class AnotherComplexClassExample
 {
     private $eventSessionKey;
     private $session;

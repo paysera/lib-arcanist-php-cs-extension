@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Translation\TranslatorInterface;
 use WebToPay_Factory;
 
-class WebToPayHandler extends HandlerAbstract
+class SomeComplexClass extends OtherComplexClass
 {
     const CALLBACK_STATUS_PAYMENT_CONFIRMED = 1;
     const CALLBACK_STATUS_ADDITIONAL_DATA = 3;

@@ -1,4 +1,4 @@
-# lib-arcanist-php-cs-extension
+# lib-arcanist-php-cs-extension ![](https://travis-ci.org/paysera/lib-arcanist-php-cs-extension.svg?branch=master)
 
 This library integrates [PHP CS Fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer) as lint engine to `arcanist`.
 It allows developer to automatically run `php-cs-fixer` on `arc diff`.

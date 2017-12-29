@@ -69,11 +69,7 @@ class LintMessageBuilder
         }
 
         if (count($diffParts) > 0) {
-            $message = new \ArcanistLintMessage();
-            $message->setName(implode(', ', $fixData['appliedFixers']));
-            $message->setPath($path);
-            $message->setCode('PHP_CS_FIXER');
-            $message->setSeverity(\ArcanistLintSeverity::SEVERITY_WARNING);
+            $message = $this->getPartialLintMessage($path, null, $fixData['appliedFixers']);
             $message->setDescription(sprintf(
                 "Lint engine was unable to extract exact line number\n"
                 . "Please consider applying these changes:\n```%s```",
@@ -205,11 +201,7 @@ class LintMessageBuilder
      */
     private function createLintMessage($path, array $diffPart, $line, array $fixData)
     {
-        $message = new \ArcanistLintMessage();
-        $message->setName(implode(', ', $fixData['appliedFixers']));
-        $message->setPath($path);
-        $message->setCode('PHP_CS_FIXER');
-        $message->setLine($line);
+        $message = $this->getPartialLintMessage($path, $line, $fixData['appliedFixers']);
         $message->setSeverity(\ArcanistLintSeverity::SEVERITY_WARNING);
 
         $description = [
@@ -235,6 +227,29 @@ class LintMessageBuilder
         $description[] = '```';
 
         $message->setDescription(implode("\n", $description));
+
+        return $message;
+    }
+
+    /**
+     * @param string $path
+     * @param int|null $line
+     * @param array $appliedFixers
+     * @return ArcanistLintMessage
+     * @throws Exception
+     */
+    private function getPartialLintMessage($path, $line, array $appliedFixers)
+    {
+        $name = implode(', ', $appliedFixers);
+        if (strlen($name) > 255) {
+            $name = substr($name, 0, 250) . '...';
+        }
+
+        $message = new \ArcanistLintMessage();
+        $message->setName($name);
+        $message->setPath($path);
+        $message->setCode('PHP_CS_FIXER');
+        $message->setLine($line);
 
         return $message;
     }

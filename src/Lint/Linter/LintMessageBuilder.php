@@ -202,7 +202,6 @@ class LintMessageBuilder
     private function createLintMessage($path, array $diffPart, $line, array $fixData)
     {
         $message = $this->getPartialLintMessage($path, $line, $fixData['appliedFixers']);
-        $message->setSeverity(\ArcanistLintSeverity::SEVERITY_WARNING);
 
         $description = [
             "Please consider applying these changes:\n```",
@@ -250,6 +249,7 @@ class LintMessageBuilder
         $message->setPath($path);
         $message->setCode('PHP_CS_FIXER');
         $message->setLine($line);
+        $message->setSeverity(\ArcanistLintSeverity::SEVERITY_WARNING);
 
         return $message;
     }

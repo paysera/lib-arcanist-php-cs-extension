@@ -30,34 +30,49 @@ class LintMessageBuilder
     private function doBuildLintMessages($path, array $fixData)
     {
         $changeSet = (new Parser())->parseLines(explode("\n", $fixData['diff']));
+
+        /** @var \ArcanistLintMessage[] $messages */
         $messages = [];
 
+        $addedOffset = 0;
         foreach ($changeSet->getFiles() as $file) {
             foreach ($file->getHunks() as $hunk) {
-                $message = $this->getPartialLintMessage($path, $hunk->getOriginalStart(), $fixData['appliedFixers']);
-                $message->setDescription((string) $hunk);
-                $subMessages = [];
                 foreach ($hunk->getLines() as $line) {
                     if ($line->getOperation() === Line::UNCHANGED) {
                         continue;
                     }
 
-                    $subMessage = new \ArcanistLintMessage();
-                    $subMessage->setLine($line->getNewLineNo());
-                    $subMessage->setSeverity(\ArcanistLintSeverity::SEVERITY_WARNING);
-                    $subMessage->setChar(0);
+                    $message = null;
+                    if ($line->getOperation() === Line::ADDED){
+                        $lineNo = $line->getNewLineNo() - $addedOffset;
+                    } else {
+                        $lineNo = $line->getOriginalLineNo();
+                    }
+
+                    if (isset($messages[$lineNo])) {
+                        $message = $messages[$lineNo];
+                    }
+
+                    if ($message === null) {
+                        $message = new \ArcanistLintMessage();
+                        $message->setName($this->getTrimmedAppliedFixers($fixData['appliedFixers']));
+                        $message->setPath($path);
+                        $message->setSeverity(\ArcanistLintSeverity::SEVERITY_WARNING);
+                        $message->setChar(1);
+                        $message->setLine($lineNo);
+
+                        if ($line->getOperation() === Line::ADDED) {
+                            $addedOffset++;
+                        }
+                    }
                     if ($line->getOperation() === Line::ADDED) {
-                        $subMessage->setReplacementText($line->getContent());
-                        $subMessage->setOriginalText('');
+                        $message->setReplacementText($line->getContent());
                     }
                     if ($line->getOperation() === Line::REMOVED) {
-                        $subMessage->setReplacementText('');
-                        $subMessage->setOriginalText($line->getContent());
+                        $message->setOriginalText($line->getContent());
                     }
-                    $subMessages[] = $subMessage;
+                    $messages[$message->getLine()] = $message;
                 }
-                $message->setDependentMessages($subMessages);
-                $messages[] = $message;
             }
         }
 
@@ -218,8 +233,8 @@ class LintMessageBuilder
             $lastAdditionNo = 0;
             foreach ($lines as $no => $line) {
                 if ($this->isChangeNotationChar($line, '-')) {
-                        $removals++;
-                        $lastRemovalNo = $no + 1;
+                    $removals++;
+                    $lastRemovalNo = $no + 1;
                 } elseif ($this->isChangeNotationChar($line, '+')) {
                     $additions++;
                     $lastAdditionNo = $no + 1;
@@ -298,10 +313,7 @@ class LintMessageBuilder
      */
     private function getPartialLintMessage($path, $line, array $appliedFixers)
     {
-        $name = implode(', ', $appliedFixers);
-        if (strlen($name) > 255) {
-            $name = substr($name, 0, 250) . '...';
-        }
+        $name = $this->getTrimmedAppliedFixers($appliedFixers);
 
         $message = new \ArcanistLintMessage();
         $message->setName($name);
@@ -311,5 +323,15 @@ class LintMessageBuilder
         $message->setSeverity(\ArcanistLintSeverity::SEVERITY_WARNING);
 
         return $message;
+    }
+
+    private function getTrimmedAppliedFixers(array $appliedFixers)
+    {
+        $fixers = implode(', ', $appliedFixers);
+        if (strlen($fixers) > 255) {
+            $fixers = substr($fixers, 0, 250) . '...';
+        }
+
+        return $fixers;
     }
 }

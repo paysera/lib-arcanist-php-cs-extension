@@ -75,17 +75,17 @@ class LintMessageBuilderTest extends TestCase
             [
                 __DIR__ . '/diff/simple-diff.php',
                 json_decode(file_get_contents(__DIR__ . '/diff/simple-udiff.json'), true),
-                7,
+                9,
             ],
             [
                 __DIR__ . '/diff/complex-diff-1.php',
                 json_decode(file_get_contents(__DIR__ . '/diff/complex-udiff-1.json'), true),
-                32,
+                178,
             ],
             [
                 __DIR__ . '/diff/complex-diff-2.php',
                 json_decode(file_get_contents(__DIR__ . '/diff/complex-udiff-2.json'), true),
-                11,
+                28,
             ],
         ];
     }

@@ -1,8 +1,18 @@
 <?php
 
+use ptlis\DiffParser\Line;
+use ptlis\DiffParser\Parser;
+
 class LintMessageBuilder
 {
     const CHANGE_NOTATION_REGEX = '#^(%s)(?:\s|[a-zA-Z]|$)#';
+
+    private $guessMessages;
+
+    public function __construct($guessMessages = false)
+    {
+        $this->guessMessages = $guessMessages;
+    }
 
     /**
      * @param string $path
@@ -10,6 +20,56 @@ class LintMessageBuilder
      * @return \ArcanistLintMessage[]
      */
     public function buildLintMessages($path, array $fixData)
+    {
+        if ($this->guessMessages) {
+            return $this->guessMessages($path, $fixData);
+        }
+        return $this->doBuildLintMessages($path, $fixData);
+    }
+
+    private function doBuildLintMessages($path, array $fixData)
+    {
+        $changeSet = (new Parser())->parseLines(explode("\n", $fixData['diff']));
+        $messages = [];
+
+        foreach ($changeSet->getFiles() as $file) {
+            foreach ($file->getHunks() as $hunk) {
+                $message = $this->getPartialLintMessage($path, $hunk->getOriginalStart(), $fixData['appliedFixers']);
+                $message->setDescription((string) $hunk);
+                $subMessages = [];
+                foreach ($hunk->getLines() as $line) {
+                    if ($line->getOperation() === Line::UNCHANGED) {
+                        continue;
+                    }
+
+                    $subMessage = new \ArcanistLintMessage();
+                    $subMessage->setLine($line->getNewLineNo());
+                    $subMessage->setSeverity(\ArcanistLintSeverity::SEVERITY_WARNING);
+                    $subMessage->setChar(0);
+                    if ($line->getOperation() === Line::ADDED) {
+                        $subMessage->setReplacementText($line->getContent());
+                        $subMessage->setOriginalText('');
+                    }
+                    if ($line->getOperation() === Line::REMOVED) {
+                        $subMessage->setReplacementText('');
+                        $subMessage->setOriginalText($line->getContent());
+                    }
+                    $subMessages[] = $subMessage;
+                }
+                $message->setDependentMessages($subMessages);
+                $messages[] = $message;
+            }
+        }
+
+        return $messages;
+    }
+
+    /**
+     * @param string $path
+     * @param array $fixData
+     * @return \ArcanistLintMessage[]
+     */
+    private function guessMessages($path, array $fixData)
     {
         $diffParts = $this->extractDiffParts($fixData['diff']);
         $rows = array_map('trim', file($path));
@@ -235,7 +295,6 @@ class LintMessageBuilder
      * @param int|null $line
      * @param array $appliedFixers
      * @return ArcanistLintMessage
-     * @throws Exception
      */
     private function getPartialLintMessage($path, $line, array $appliedFixers)
     {

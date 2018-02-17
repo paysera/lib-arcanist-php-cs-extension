@@ -1,20 +1,22 @@
 {
-  "files": [
-    {
-      "name": "src\/src\/Evp\/Bundle\/PaymentBundle\/PaymentHandler\/WebToPayHandler.php",
-      "appliedFixers": [
-        "Paysera\/php_basic_code_style_splitting_in_several_lines",
-        "Paysera\/php_basic_feature_throw_base_exception",
-        "Paysera\/php_basic_comment_php_doc_on_properties",
-        "visibility_required",
-        "binary_operator_spaces",
-        "no_extra_consecutive_blank_lines"
-      ],
-      "diff": "--- Original\n+++ New\n@@ @@\n     private $languageMapper;\n+    \/\/ TODO: \"$defaultPaymentCountry\" - PhpBasic convention 4.3: Missing DocBlock\n     private $defaultPaymentCountry;\n+    \/\/ TODO: \"$fallbackLanguage\" - PhpBasic convention 4.3: Missing DocBlock\n@@ @@\n      *\/\n-    function __construct(\n+    public function __construct(\n@@ @@\n         if ($order->getOrderPrice() === null) {\n-            throw new Exception('Order price was not set on the last step');\n+            throw new Exception('Order price was not set on the last step'); \/\/ TODO: PhpBasic convention 3.20.1: We almost never throw base \\Exception class\n@@ @@\n     {\n-\n@@ @@\n                     'currency' => $user->getOrder()->getEvent()->getCurrency(),\n-                    'country'  => $user->getOrder()->getEvent()->getCountryCode(),\n+                    'country' => $user->getOrder()->getEvent()->getCountryCode(),\n@@ @@\n         if ($isAmountDifferent || $isCurrencyDifferent) {\n-            $this->getLogger()->debug('Order amount or currency mismatch',\n+            $this->getLogger()->debug(\n+                'Order amount or currency mismatch',\n                 [\n                     'expected' => $orderPrice,\n                     'received' => $requestAmount,\n                 ]\n             );\n             throw new OrderIntegrityException('Order amount or currency mismatch');\n         }\n     }\n \n     \/**\n      * @param User $user\n      * @param string $locale\n      * @return string\n      *\/\n     private function getAcceptUrlForUser(User $user, $locale)\n     {\n         return $this->getRouter()->generate(\n             'payment_completed',\n             [\n                 'orderToken' => $user->getOrder()->getToken(),\n                 '_locale' => $locale,\n             ],\n             true\n         );\n     }\n \n     \/**\n      * @param string $locale\n      * @return string\n      *\/\n     private function getCancelUrl($locale)\n     {\n         return $this->getRouter()->generate('payment_cancelled', ['_locale' => $locale], true);\n     }\n \n     private function buildPayText(Order $order)\n     {\n         return $this->translator->trans(\n             'payment.pay_text',\n             [\n                 '%event%' => $order->getEvent()->getName(),\n             ],\n             'TicketFrontend'\n         );\n     }\n \n     private function getWebtopayFactory(Order $order)\n     {\n         $settings = $order->getEvent()->getSettings();\n \n         return new \\WebToPay_Factory([\n             'projectId' => $settings->getProjectId(),\n             'password' => $settings->getProjectSign(),\n         ]);\n     }\n }\n \n"
-    }
-  ],
-  "time": {
-    "total": 1.319
-  },
-  "memory": 12
+    "files": [
+        {
+            "name": "lib-arcanist-php-cs-extension\/tests\/diff\/complex-diff-2.php",
+            "appliedFixers": [
+                "yoda_style",
+                "visibility_required",
+                "binary_operator_spaces",
+                "phpdoc_separation",
+                "cast_spaces",
+                "blank_line_before_statement",
+                "no_extra_blank_lines",
+                "phpdoc_align"
+            ],
+            "diff": "--- Original\n+++ New\n@@ @@\n     \/**\n-     * @param Router $router\n-     * @param UserSession $userSession\n-     * @param LoggerInterface $logger\n-     * @param EntityManager $entityManager\n+     * @param Router                 $router\n+     * @param UserSession            $userSession\n+     * @param LoggerInterface        $logger\n+     * @param EntityManager          $entityManager\n      * @param WebToPayLanguageMapper $languageMapper\n-     * @param string $defaultPaymentCountry\n-     * @param string $fallbackLanguage\n-     * @param TranslatorInterface $translator\n+     * @param string                 $defaultPaymentCountry\n+     * @param string                 $fallbackLanguage\n+     * @param TranslatorInterface    $translator\n      *\/\n-    function __construct(\n+    public function __construct(\n@@ @@\n \n-        if ($order->getOrderPrice() === null) {\n+        if (null === $order->getOrderPrice()) {\n@@ @@\n     {\n-\n@@ @@\n                     'currency' => $user->getOrder()->getEvent()->getCurrency(),\n-                    'country'  => $user->getOrder()->getEvent()->getCountryCode(),\n+                    'country' => $user->getOrder()->getEvent()->getCountryCode(),\n@@ @@\n     {\n-        $requestParameters = $request->request->count() !== 0 ? $request->request->all() : $request->query->all();\n+        $requestParameters = 0 !== $request->request->count() ? $request->request->all() : $request->query->all();\n@@ @@\n             $callback->setParsedRequestData($parsedRequestData);\n-            $callbackStatus = (int)$parsedRequestData['status'];\n+            $callbackStatus = (int) $parsedRequestData['status'];\n \n-            if ($callbackStatus === self::CALLBACK_STATUS_PAYMENT_CONFIRMED) {\n+            if (self::CALLBACK_STATUS_PAYMENT_CONFIRMED === $callbackStatus) {\n                 $callback->setOrder($order);\n                 $this->validateMoneyReceived($order, $parsedRequestData);\n                 $this->getEntityManager()->persist($callback);\n+\n                 return HandlerInterface::RESULT_SUCCESS;\n             }\n-            if ($callbackStatus === self::CALLBACK_STATUS_ADDITIONAL_DATA) {\n+            if (self::CALLBACK_STATUS_ADDITIONAL_DATA === $callbackStatus) {\n@@ @@\n      * @param \\WebToPay_PaymentMethodGroup[][] $paymentGroups\n+     *\n@@ @@\n         }\n+\n@@ @@\n      * @param array $parsedRequestData\n+     *\n@@ @@\n     \/**\n-     * @param User $user\n+     * @param User   $user\n      * @param string $locale\n+     *\n@@ @@\n      * @param string $locale\n+     *\n      * @return string\n      *\/\n     private function getCancelUrl($locale)\n     {\n         return $this->getRouter()->generate('payment_cancelled', ['_locale' => $locale], true);\n     }\n \n     private function buildPayText(Order $order)\n     {\n         return $this->translator->trans(\n             'payment.pay_text',\n             [\n                 '%event%' => $order->getEvent()->getName(),\n             ],\n             'TicketFrontend'\n         );\n     }\n \n     private function getWebtopayFactory(Order $order)\n     {\n         $settings = $order->getEvent()->getSettings();\n \n         return new \\WebToPay_Factory([\n             'projectId' => $settings->getProjectId(),\n             'password' => $settings->getProjectSign(),\n         ]);\n     }\n }\n \n"
+        }
+    ],
+    "time": {
+        "total": 0.902
+    },
+    "memory": 12
 }

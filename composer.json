@@ -30,7 +30,8 @@
     ],
     "require": {
         "php": "^5.5 || ^7.0",
-        "friendsofphp/php-cs-fixer": "^2.2"
+        "friendsofphp/php-cs-fixer": "^2.2",
+        "ptlis/diff-parser": "^0.6.0"
     },
     "require-dev": {
         "phacility/arcanist": "dev-master#5eda40337bb4135ca4929617602686302edc7cc0",
@@ -46,6 +47,7 @@
     },
     "autoload-dev": {
         "Paysera\\Tests": "tests/",
-        "classmap": ["vendor/phacility/arcanist/src/", "vendor/phacility/libphutil/src/"]
+        "classmap": ["vendor/phacility/arcanist/src/", "vendor/phacility/libphutil/src/"],
+        "files": ["vendor/phacility/libphutil/src/utils/utils.php"]
     }
 }

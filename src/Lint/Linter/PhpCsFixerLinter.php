@@ -33,7 +33,14 @@ class PhpCsFixerLinter extends \ArcanistExternalLinter
         }
 
         $this->configuration = $configuration;
-        $this->lintMessageBuilder = new LintMessageBuilder();
+
+        $guessMessages = true;
+        if (version_compare($this->getVersion(), '2.8.0', '>=')) {
+            $this->defaultFlags[] = '--diff-format=udiff';
+            $guessMessages = false;
+        }
+
+        $this->lintMessageBuilder = new LintMessageBuilder($guessMessages);
 
         $this->setPaths($this->configuration->getPaths());
     }
@@ -90,16 +97,19 @@ class PhpCsFixerLinter extends \ArcanistExternalLinter
         return $this->configuration->getBinaryFile();
     }
 
+    /**
+     * @return string|null
+     */
     public function getVersion()
     {
         list($stdout) = execx('%C --version', $this->getExecutableCommand());
 
-        $matches = null;
-        if (preg_match('#PHP CS Fixer (.*)#i', $stdout, $matches)) {
-            return $matches[1];
+        $version = null;
+        if (preg_match('#PHP CS Fixer (\d+\.\d+\.\d+\.*)#i', $stdout, $matches)) {
+            $version = $matches[1];
         }
 
-        return null;
+        return $version;
     }
 
     public function parseLinterOutput($path, $err, $stdout, $stderr)

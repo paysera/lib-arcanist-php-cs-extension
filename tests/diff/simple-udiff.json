@@ -1,0 +1,18 @@
+{
+    "files": [
+        {
+            "name": "lib-arcanist-php-cs-extension\/tests\/diff\/simple-diff.php",
+            "appliedFixers": [
+                "increment_style",
+                "yoda_style",
+                "phpdoc_separation",
+                "phpdoc_align"
+            ],
+            "diff": "--- Original\n+++ New\n@@ -4,7 +4,8 @@\n {\n     \/**\n      * @param string $path\n-     * @param array $fixData\n+     * @param array  $fixData\n+     *\n      * @return \\ArcanistLintMessage[]\n      *\/\n     public function buildLintMessages($path, array $fixData)\n@@ -13,7 +14,7 @@\n         $rows = array_map('trim', file($path));\n \n         $messages = [];\n-        for ($i = 0; $i < count($rows); $i++) {\n+        for ($i = 0; $i < count($rows); ++$i) {\n             foreach ($diffParts as $diffPart) {\n                 if (isset($diffPart['informational'])) {\n                     $matchedInformational = 0;\n@@ -21,7 +22,7 @@\n                         if ($rows[$i + $key] !== $item) {\n                             break 2;\n                         }\n-                        $matchedInformational++;\n+                        ++$matchedInformational;\n                     }\n                     if ($matchedInformational === count($diffPart['informational'])) {\n                         $i += $matchedInformational;\n@@ -31,7 +32,7 @@\n                                 if ($rows[$i + $key] !== trim(ltrim($removal, '-'))) {\n                                     break 1;\n                                 }\n-                                $matchedRemovals++;\n+                                ++$matchedRemovals;\n                             }\n                             if ($matchedRemovals === count($diffPart['removals'])) {\n                                 $messages[] = $this->createLintMessage($path, $diffPart, $i + 1, $fixData);\n@@ -45,7 +46,7 @@\n                                 if ($rows[$i + $key] !== trim(ltrim($removal, '+'))) {\n                                     break 1;\n                                 }\n-                                $matchedAdditions++;\n+                                ++$matchedAdditions;\n                             }\n                             if ($matchedAdditions === count($diffPart['additions'])) {\n                                 $messages[] = $this->createLintMessage($path, $diffPart, $i + 1, $fixData);\n@@ -64,6 +65,7 @@\n \n     \/**\n      * @param $diff\n+     *\n      * @return array[removals, additions, informational]\n      *\/\n     private function extractDiffParts($diff)\n@@ -76,9 +78,9 @@\n         foreach ($parts as $key => $part) {\n             $lines = array_map('trim', explode(\"\\n\", trim($part)));\n             foreach ($lines as $line) {\n-                if (strpos($line, '-') === 0) {\n+                if (0 === strpos($line, '-')) {\n                     $diffParts[$key]['removals'][] = $line;\n-                } elseif (strpos($line, '+') === 0) {\n+                } elseif (0 === strpos($line, '+')) {\n                     $diffParts[$key]['additions'][] = $line;\n                 } else {\n                     if (!isset($diffParts[$key]['additions'])) {\n"
+        }
+    ],
+    "time": {
+        "total": 0.394
+    },
+    "memory": 12
+}

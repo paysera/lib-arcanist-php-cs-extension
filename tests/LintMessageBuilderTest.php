@@ -9,11 +9,30 @@ class LintMessageBuilderTest extends TestCase
     /**
      * @var \LintMessageBuilder
      */
-    private $lintMessageBuilder;
+    private $guessLintMessageBuilder;
+
+    /**
+     * @var \LintMessageBuilder
+     */
+    private $exactLintMessageBuilder;
 
     protected function setUp()
     {
-        $this->lintMessageBuilder = new \LintMessageBuilder();
+        $this->guessLintMessageBuilder = new \LintMessageBuilder(true);
+        $this->exactLintMessageBuilder = new \LintMessageBuilder(false);
+    }
+
+    /**
+     * @dataProvider dataProviderTestGuessesLintMessages
+     *
+     * @param string $path
+     * @param array $lintResult
+     * @param int $messagesCount
+     */
+    public function testGuessesLintMessages($path, $lintResult, $messagesCount)
+    {
+        $guessedMessages = $this->guessLintMessageBuilder->buildLintMessages($path, $lintResult['files'][0]);
+        $this->assertCount($messagesCount, $guessedMessages);
     }
 
     /**
@@ -25,8 +44,29 @@ class LintMessageBuilderTest extends TestCase
      */
     public function testBuildsLintMessages($path, $lintResult, $messagesCount)
     {
-        $messages = $this->lintMessageBuilder->buildLintMessages($path, $lintResult['files'][0]);
-        $this->assertCount($messagesCount, $messages);
+        $guessedMessages = $this->exactLintMessageBuilder->buildLintMessages($path, $lintResult['files'][0]);
+        $this->assertCount($messagesCount, $guessedMessages);
+    }
+
+    public function dataProviderTestGuessesLintMessages()
+    {
+        return [
+            [
+                __DIR__ . '/diff/simple-diff.php',
+                json_decode(file_get_contents(__DIR__ . '/diff/simple-diff.json'), true),
+                8,
+            ],
+            [
+                __DIR__ . '/diff/complex-diff-1.php',
+                json_decode(file_get_contents(__DIR__ . '/diff/complex-diff-1.json'), true),
+                68,
+            ],
+            [
+                __DIR__ . '/diff/complex-diff-2.php',
+                json_decode(file_get_contents(__DIR__ . '/diff/complex-diff-2.json'), true),
+                17,
+            ],
+        ];
     }
 
     public function dataProviderTestBuildsLintMessages()
@@ -34,18 +74,18 @@ class LintMessageBuilderTest extends TestCase
         return [
             [
                 __DIR__ . '/diff/simple-diff.php',
-                json_decode(file_get_contents(__DIR__ . '/diff/simple-diff.json'), true),
-                6,
+                json_decode(file_get_contents(__DIR__ . '/diff/simple-udiff.json'), true),
+                7,
             ],
             [
                 __DIR__ . '/diff/complex-diff-1.php',
-                json_decode(file_get_contents(__DIR__ . '/diff/complex-diff-1.json'), true),
-                34,
+                json_decode(file_get_contents(__DIR__ . '/diff/complex-udiff-1.json'), true),
+                32,
             ],
             [
                 __DIR__ . '/diff/complex-diff-2.php',
-                json_decode(file_get_contents(__DIR__ . '/diff/complex-diff-2.json'), true),
-                7,
+                json_decode(file_get_contents(__DIR__ . '/diff/complex-udiff-2.json'), true),
+                11,
             ],
         ];
     }

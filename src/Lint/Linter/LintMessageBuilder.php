@@ -60,6 +60,7 @@ class LintMessageBuilder
                         $message->setSeverity(\ArcanistLintSeverity::SEVERITY_WARNING);
                         $message->setChar(1);
                         $message->setLine($lineNo);
+                        $message->setCode('PHP_CS_FIXER');
 
                         if ($line->getOperation() === Line::ADDED) {
                             $addedOffset++;

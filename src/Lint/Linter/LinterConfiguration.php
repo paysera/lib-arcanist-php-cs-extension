@@ -24,6 +24,8 @@ class LinterConfiguration
     public function __construct()
     {
         $this->paths = [];
+        $this->binaryFile = self::BINARY_FILE;
+        $this->phpCsFile = self::PHP_CS_FILE;
     }
 
     /**

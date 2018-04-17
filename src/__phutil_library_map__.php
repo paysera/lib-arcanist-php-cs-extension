@@ -16,7 +16,7 @@ phutil_register_library_map(array(
     ),
     'function' => array(),
     'xmap' => array(
-        'PhpCsFixerLintEngine' => '\\ArcanistLintEngine',
-        'PhpCsFixerLinter' => '\\ArcanistExternalLinter',
+        'PhpCsFixerLintEngine' => 'ArcanistLintEngine',
+        'PhpCsFixerLinter' => 'ArcanistExternalLinter',
     ),
 ));

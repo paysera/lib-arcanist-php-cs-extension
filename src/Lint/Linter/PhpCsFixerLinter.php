@@ -81,7 +81,10 @@ class PhpCsFixerLinter extends \ArcanistExternalLinter
 
     public function getInstallInstructions()
     {
-        return 'By installing this package, you\'ve already installed all dependencies!';
+        return
+            'By installing this package, you\'ve already installed all dependencies!' .
+            ' Just check you php-cs-fixer binary is in project root bin folder'
+        ;
     }
 
     public function getDefaultFlags()

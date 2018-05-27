@@ -18,8 +18,8 @@ class LintMessageBuilderTest extends TestCase
 
     protected function setUp()
     {
-        $this->guessLintMessageBuilder = new \LintMessageBuilder(true);
-        $this->exactLintMessageBuilder = new \LintMessageBuilder(false);
+        $this->guessLintMessageBuilder = new \LintMessageBuilder(false);
+        $this->exactLintMessageBuilder = new \LintMessageBuilder(true);
     }
 
     /**

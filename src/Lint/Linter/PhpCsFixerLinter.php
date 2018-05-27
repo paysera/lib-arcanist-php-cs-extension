@@ -34,13 +34,16 @@ class PhpCsFixerLinter extends \ArcanistExternalLinter
 
         $this->configuration = $configuration;
 
-        $guessMessages = true;
-        if (version_compare($this->getVersion(), '2.8.0', '>=')) {
+        $unifiedDiffFormat = false;
+        if (
+            version_compare($this->getVersion(), '2.8.0', '>=')
+            && $this->configuration->isUnifiedDiffFormat()
+        ) {
             $this->defaultFlags[] = '--diff-format=udiff';
-            $guessMessages = false;
+            $unifiedDiffFormat = true;
         }
 
-        $this->lintMessageBuilder = new LintMessageBuilder($guessMessages);
+        $this->lintMessageBuilder = new LintMessageBuilder($unifiedDiffFormat);
 
         $this->setPaths($this->configuration->getPaths());
     }
@@ -82,8 +85,8 @@ class PhpCsFixerLinter extends \ArcanistExternalLinter
     public function getInstallInstructions()
     {
         return
-            'By installing this package, you\'ve already installed all dependencies!' .
-            ' Just check you php-cs-fixer binary is in project root bin folder'
+            'You should install "php-cs-fixer" globally, or locally.' .
+            ' Please adjust "lint.php_cs_fixer.php_cs_binary" parameter in ".arcconfig" file accordingly'
         ;
     }
 

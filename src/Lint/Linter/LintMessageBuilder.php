@@ -7,11 +7,11 @@ class LintMessageBuilder
 {
     const CHANGE_NOTATION_REGEX = '#^(%s)(?:\s|[a-zA-Z]|$)#';
 
-    private $guessMessages;
+    private $unifiedDiffFormat;
 
-    public function __construct($guessMessages = false)
+    public function __construct($unifiedDiffFormat = true)
     {
-        $this->guessMessages = $guessMessages;
+        $this->unifiedDiffFormat = $unifiedDiffFormat;
     }
 
     /**
@@ -21,7 +21,7 @@ class LintMessageBuilder
      */
     public function buildLintMessages($path, array $fixData)
     {
-        if ($this->guessMessages) {
+        if (!$this->unifiedDiffFormat) {
             return $this->guessMessages($path, $fixData);
         }
         return $this->doBuildLintMessages($path, $fixData);

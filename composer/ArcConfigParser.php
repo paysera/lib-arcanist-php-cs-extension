@@ -17,6 +17,10 @@ class ArcConfigParser
         $phpCsBinary = $event->getComposer()->getConfig()
                 ->get('bin-dir', Config::RELATIVE_PATHS) . '/php-cs-fixer';
 
+        if (!file_exists($phpCsBinary)) {
+            $phpCsBinary = 'php-cs-fixer';
+        }
+
         $arcConfig = [];
         if (file_exists($arcConfigFile)) {
             $arcConfig = json_decode(file_get_contents($arcConfigFile), true);
@@ -36,6 +40,9 @@ class ArcConfigParser
         }
         if (!isset($arcConfig['lint.php_cs_fixer.php_cs_file'])) {
             $arcConfig['lint.php_cs_fixer.php_cs_file'] = \LinterConfiguration::PHP_CS_FILE;
+        }
+        if (!isset($arcConfig['lint.php_cs_fixer.unified_diff_format'])) {
+            $arcConfig['lint.php_cs_fixer.unified_diff_format'] = true;
         }
 
         file_put_contents($arcConfigFile, stripslashes(json_encode($arcConfig, JSON_PRETTY_PRINT)));

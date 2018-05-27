@@ -36,12 +36,15 @@ final class PhpCsFixerLintEngine extends \ArcanistLintEngine
 
         $phpCsFile = $configManager
             ->getConfigFromAnySource('lint.php_cs_fixer.php_cs_file', LinterConfiguration::PHP_CS_FILE);
+        $unifiedDiffFormat = $configManager
+            ->getConfigFromAnySource('lint.php_cs_fixer.unified_diff_format', true);
 
         $linterConfiguration = new LinterConfiguration();
         $linterConfiguration
             ->setBinaryFile($binaryPath)
             ->setPhpCsFile($phpCsFile)
             ->setPaths($properPaths)
+            ->setUnifiedDiffFormat($unifiedDiffFormat)
         ;
 
         return [new PhpCsFixerLinter($linterConfiguration)];

@@ -4,7 +4,7 @@ class LinterConfiguration
 {
     const SRC_DIRECTORY = 'src/';
     const PHP_CS_FILE = '.php_cs';
-    const BINARY_FILE = 'bin/php-cs-fixer';
+    const BINARY_FILE = 'php-cs-fixer';
 
     /**
      * @var string
@@ -21,11 +21,17 @@ class LinterConfiguration
      */
     private $paths;
 
+    /**
+     * @var bool
+     */
+    private $unifiedDiffFormat;
+
     public function __construct()
     {
         $this->paths = [];
         $this->binaryFile = self::BINARY_FILE;
         $this->phpCsFile = self::PHP_CS_FILE;
+        $this->unifiedDiffFormat = true;
     }
 
     /**
@@ -84,6 +90,26 @@ class LinterConfiguration
     public function setPaths($paths)
     {
         $this->paths = $paths;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isUnifiedDiffFormat()
+    {
+        return $this->unifiedDiffFormat;
+    }
+
+    /**
+     * @param bool $unifiedDiffFormat
+     *
+     * @return $this
+     */
+    public function setUnifiedDiffFormat($unifiedDiffFormat)
+    {
+        $this->unifiedDiffFormat = $unifiedDiffFormat;
 
         return $this;
     }

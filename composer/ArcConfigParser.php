@@ -42,7 +42,7 @@ class ArcConfigParser
             $arcConfig['lint.php_cs_fixer.php_cs_file'] = \LinterConfiguration::PHP_CS_FILE;
         }
         if (!isset($arcConfig['lint.php_cs_fixer.unified_diff_format'])) {
-            $arcConfig['lint.php_cs_fixer.unified_diff_format'] = true;
+            $arcConfig['lint.php_cs_fixer.unified_diff_format'] = false;
         }
 
         file_put_contents($arcConfigFile, stripslashes(json_encode($arcConfig, JSON_PRETTY_PRINT)));

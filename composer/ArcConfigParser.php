@@ -4,7 +4,6 @@ namespace Paysera\Composer;
 
 use Composer\Config;
 use Composer\Script\Event;
-use PhpCsFixerLinter;
 
 class ArcConfigParser
 {
@@ -79,11 +78,11 @@ class ArcConfigParser
             $arcLint = json_decode(file_get_contents(self::LINT_FILE), true);
         }
 
-        if (!isset($arcLint['linters'][PhpCsFixerLinter::LINTER_NAME]['type'])) {
-            $arcLint['linters'][PhpCsFixerLinter::LINTER_NAME]['type'] = PhpCsFixerLinter::LINTER_NAME;
+        if (!isset($arcLint['linters']['php-cs-fixer']['type'])) {
+            $arcLint['linters']['php-cs-fixer']['type'] = 'php-cs-fixer';
         }
-        if (!isset($arcLint['linters'][PhpCsFixerLinter::LINTER_NAME]['bin'])) {
-            $arcLint['linters'][PhpCsFixerLinter::LINTER_NAME]['bin'] = $parsedConfig['lint.php_cs_fixer.php_cs_binary'];
+        if (!isset($arcLint['linters']['php-cs-fixer']['bin'])) {
+            $arcLint['linters']['php-cs-fixer']['bin'] = $parsedConfig['lint.php_cs_fixer.php_cs_binary'];
         }
 
         file_put_contents(self::LINT_FILE, stripslashes(json_encode($arcLint, JSON_PRETTY_PRINT)));

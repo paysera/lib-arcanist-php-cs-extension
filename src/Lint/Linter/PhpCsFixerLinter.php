@@ -2,7 +2,6 @@
 
 class PhpCsFixerLinter extends \ArcanistExternalLinter
 {
-    const LINTER_NAME = 'php-cs-fixer';
     /**
      * @var array
      */

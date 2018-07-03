@@ -4,16 +4,17 @@ namespace Paysera\Composer;
 
 use Composer\Config;
 use Composer\Script\Event;
+use PhpCsFixerLinter;
 
 class ArcConfigParser
 {
     const LOAD = 'vendor/paysera/lib-arcanist-php-cs-extension/src/';
     const LINT_ENGINE = 'PhpCsFixerLintEngine';
+    const CONFIG_FILE = '.arcconfig';
+    const LINT_FILE = '.arclint';
 
     public static function parseArcConfig(Event $event)
     {
-        $arcConfigFile = '.arcconfig';
-
         $phpCsBinary = $event->getComposer()->getConfig()
                 ->get('bin-dir', Config::RELATIVE_PATHS) . '/php-cs-fixer';
 
@@ -21,30 +22,84 @@ class ArcConfigParser
             $phpCsBinary = 'php-cs-fixer';
         }
 
+        $parsedConfig = self::parseAndPrepareArcConfig($phpCsBinary);
+
+        if (!file_exists(self::LINT_FILE)) {
+            self::createOrUpdateArcLint($parsedConfig);
+        }
+
+        $parsedConfig = self::cleanArcConfig($parsedConfig);
+
+        file_put_contents(
+            self::CONFIG_FILE,
+            stripslashes(json_encode($parsedConfig, JSON_PRETTY_PRINT))
+        );
+    }
+
+    private static function parseAndPrepareArcConfig($phpCsBinary)
+    {
         $arcConfig = [];
-        if (file_exists($arcConfigFile)) {
-            $arcConfig = json_decode(file_get_contents($arcConfigFile), true);
+        if (file_exists(self::CONFIG_FILE)) {
+            $arcConfig = json_decode(file_get_contents(self::CONFIG_FILE), true);
         }
 
         if (!isset($arcConfig['load'])) {
             $arcConfig['load'] = [self::LOAD];
+        } elseif (!in_array(self::LOAD, $arcConfig['load'], true)) {
+            $arcConfig['load'][] = self::LOAD;
         }
+
         if (!isset($arcConfig['lint.engine'])) {
             $arcConfig['lint.engine'] = self::LINT_ENGINE;
         }
+
         if (!isset($arcConfig['lint.php_cs_fixer.fix_paths'])) {
             $arcConfig['lint.php_cs_fixer.fix_paths'] = [\LinterConfiguration::SRC_DIRECTORY];
         }
+
         if (!isset($arcConfig['lint.php_cs_fixer.php_cs_binary'])) {
             $arcConfig['lint.php_cs_fixer.php_cs_binary'] = $phpCsBinary;
         }
+
         if (!isset($arcConfig['lint.php_cs_fixer.php_cs_file'])) {
             $arcConfig['lint.php_cs_fixer.php_cs_file'] = \LinterConfiguration::PHP_CS_FILE;
         }
+
         if (!isset($arcConfig['lint.php_cs_fixer.unified_diff_format'])) {
             $arcConfig['lint.php_cs_fixer.unified_diff_format'] = false;
         }
 
-        file_put_contents($arcConfigFile, stripslashes(json_encode($arcConfig, JSON_PRETTY_PRINT)));
+        return $arcConfig;
+    }
+
+    private static function createOrUpdateArcLint($parsedConfig)
+    {
+        $arcLint = [];
+        if (file_exists(self::LINT_FILE)) {
+            $arcLint = json_decode(file_get_contents(self::LINT_FILE), true);
+        }
+
+        if (!isset($arcLint['linters'][PhpCsFixerLinter::LINTER_NAME]['type'])) {
+            $arcLint['linters'][PhpCsFixerLinter::LINTER_NAME]['type'] = PhpCsFixerLinter::LINTER_NAME;
+        }
+        if (!isset($arcLint['linters'][PhpCsFixerLinter::LINTER_NAME]['bin'])) {
+            $arcLint['linters'][PhpCsFixerLinter::LINTER_NAME]['bin'] = $parsedConfig['lint.php_cs_fixer.php_cs_binary'];
+        }
+
+        file_put_contents(self::LINT_FILE, stripslashes(json_encode($arcLint, JSON_PRETTY_PRINT)));
+    }
+
+    private static function cleanArcConfig($parsedConfig)
+    {
+        unset($parsedConfig['lint.php_cs_fixer.fix_paths']);
+        unset($parsedConfig['lint.php_cs_fixer.php_cs_binary']);
+        unset($parsedConfig['lint.php_cs_fixer.php_cs_file']);
+        unset($parsedConfig['lint.php_cs_fixer.unified_diff_format']);
+
+        if (isset($parsedConfig['lint.engine']) && $parsedConfig['lint.engine'] === self::LINT_ENGINE) {
+            unset($parsedConfig['lint.engine']);
+        }
+
+        return $parsedConfig;
     }
 }

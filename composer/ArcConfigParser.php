@@ -84,6 +84,15 @@ class ArcConfigParser
         if (!isset($arcLint['linters']['php-cs-fixer']['bin'])) {
             $arcLint['linters']['php-cs-fixer']['bin'] = $parsedConfig['lint.php_cs_fixer.php_cs_binary'];
         }
+        if (!isset($arcLint['linters']['php-cs-fixer']['fix_paths'])) {
+            $arcLint['linters']['php-cs-fixer']['fix_paths'] = $parsedConfig['lint.php_cs_fixer.fix_paths'];
+        }
+        if (!isset($arcLint['linters']['php-cs-fixer']['php_cs_file'])) {
+            $arcLint['linters']['php-cs-fixer']['php_cs_file'] = $parsedConfig['lint.php_cs_fixer.php_cs_file'];
+        }
+        if (!isset($arcLint['linters']['php-cs-fixer']['unified_diff_format'])) {
+            $arcLint['linters']['php-cs-fixer']['unified_diff_format'] = $parsedConfig['lint.php_cs_fixer.unified_diff_format'];
+        }
 
         file_put_contents(self::LINT_FILE, stripslashes(json_encode($arcLint, JSON_PRETTY_PRINT)));
     }

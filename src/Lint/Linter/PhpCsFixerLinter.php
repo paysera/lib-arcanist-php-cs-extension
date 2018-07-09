@@ -5,6 +5,14 @@ class PhpCsFixerLinter extends \ArcanistExternalLinter
     /**
      * @var array
      */
+    private $folderExclusions = [
+        'Tests/',
+        'Test/',
+    ];
+
+    /**
+     * @var array
+     */
     private $defaultFlags = [
         '--verbose',
         '--dry-run',
@@ -98,6 +106,44 @@ class PhpCsFixerLinter extends \ArcanistExternalLinter
         );
     }
 
+    public function getLinterConfigurationOptions()
+    {
+        $options = [
+            'fix_paths' => [
+                'type' => 'optional string | list<string>',
+                'help' => pht('Paths that needs to be linted'),
+            ],
+            'php_cs_file' => [
+                'type' => 'optional string',
+                'help' => pht('Path to config file'),
+            ],
+            'unified_diff_format' => [
+                'type' => 'optional bool',
+                'help' => pht('Unified diff format'),
+            ],
+        ];
+
+        return $options + parent::getLinterConfigurationOptions();
+    }
+
+    public function setLinterConfigurationValue($key, $value)
+    {
+        switch ($key) {
+            case 'fix_paths':
+                $this->setPaths($this->resolveLintableFiles($value));
+                $this->getEngine()->setPaths($this->getPaths());
+                return;
+            case 'php_cs_file':
+                $this->configuration->setPhpCsFile($value);
+                return;
+            case 'unified_diff_format':
+                $this->configuration->setUnifiedDiffFormat($value);
+                return;
+        }
+
+        return parent::setLinterConfigurationValue($key, $value);
+    }
+
     public function getDefaultBinary()
     {
         return $this->configuration->getBinaryFile();
@@ -139,5 +185,36 @@ class PhpCsFixerLinter extends \ArcanistExternalLinter
         $root = $this->getEngine()->getWorkingCopy()->getProjectRoot();
 
         return str_replace($root . '/', '', $path);
+    }
+
+    private function resolveLintableFiles(array $lintablePaths)
+    {
+        $paths = $this->getEngine()->getPaths();
+
+        $properPaths = [];
+
+        foreach ($paths as $key => $path) {
+            if (!file_exists($this->getEngine()->getFilePathOnDisk($path))) {
+                unset($paths[$key]);
+            }
+
+            if (
+                preg_match('#' . implode('|', $this->pregQuotePaths($lintablePaths)) . '#i', $path)
+                && preg_match('#\.(php)$#', $path)
+                && preg_match('#' . implode('|', $this->pregQuotePaths($this->folderExclusions)) . '#i', $path) === 0
+            ) {
+                $properPaths[] = $path;
+            }
+        }
+        return array_merge($this->configuration->getPaths(), $properPaths);
+    }
+
+    private function pregQuotePaths(array $paths)
+    {
+        foreach ($paths as $key => $path) {
+            $paths[$key] = preg_quote($path, '#');
+        }
+
+        return $paths;
     }
 }

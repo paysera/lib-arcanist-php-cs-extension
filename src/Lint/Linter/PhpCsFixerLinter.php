@@ -2,6 +2,8 @@
 
 class PhpCsFixerLinter extends \ArcanistExternalLinter
 {
+    const U_DIFF_FLAG = '--diff-format=udiff';
+
     /**
      * @var array
      */
@@ -47,7 +49,7 @@ class PhpCsFixerLinter extends \ArcanistExternalLinter
             version_compare($this->getVersion(), '2.8.0', '>=')
             && $this->configuration->isUnifiedDiffFormat()
         ) {
-            $this->defaultFlags[] = '--diff-format=udiff';
+            $this->defaultFlags[] = self::U_DIFF_FLAG;
             $unifiedDiffFormat = true;
         }
 
@@ -138,6 +140,10 @@ class PhpCsFixerLinter extends \ArcanistExternalLinter
                 return;
             case 'unified_diff_format':
                 $this->configuration->setUnifiedDiffFormat($value);
+                $this->lintMessageBuilder = new LintMessageBuilder($value);
+                if ($value === false && in_array(self::U_DIFF_FLAG, $this->defaultFlags, true)) {
+                    unset($this->defaultFlags[array_search(self::U_DIFF_FLAG, $this->defaultFlags)]);
+                }
                 return;
         }
 

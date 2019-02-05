@@ -31,7 +31,7 @@ class ArcConfigParser
 
         file_put_contents(
             self::CONFIG_FILE,
-            stripslashes(json_encode($parsedConfig, JSON_PRETTY_PRINT))
+            json_encode($parsedConfig, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL
         );
     }
 
@@ -94,7 +94,10 @@ class ArcConfigParser
             $arcLint['linters']['php-cs-fixer']['unified_diff_format'] = $parsedConfig['lint.php_cs_fixer.unified_diff_format'];
         }
 
-        file_put_contents(self::LINT_FILE, stripslashes(json_encode($arcLint, JSON_PRETTY_PRINT)));
+        file_put_contents(
+            self::LINT_FILE,
+            json_encode($arcLint, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL
+        );
     }
 
     private static function cleanArcConfig($parsedConfig)

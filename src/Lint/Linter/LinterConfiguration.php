@@ -4,7 +4,7 @@ class LinterConfiguration
 {
     const SRC_DIRECTORY = 'src/';
     const PHP_CS_FILE = '.php_cs';
-    const BINARY_FILE = 'php-cs-fixer';
+    const BINARY_FILE = 'bin/paysera-php-cs-fixer';
 
     /**
      * @var string

@@ -13,3 +13,4 @@ matrix:
     - php: 7.1
 install:
   - composer install
+  - bin/phpunit

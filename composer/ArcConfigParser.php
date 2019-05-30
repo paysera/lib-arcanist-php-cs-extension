@@ -4,6 +4,7 @@ namespace Paysera\Composer;
 
 use Composer\Config;
 use Composer\Script\Event;
+use LinterConfiguration;
 
 class ArcConfigParser
 {
@@ -15,10 +16,10 @@ class ArcConfigParser
     public static function parseArcConfig(Event $event)
     {
         $phpCsBinary = $event->getComposer()->getConfig()
-                ->get('bin-dir', Config::RELATIVE_PATHS) . '/php-cs-fixer';
+                ->get('bin-dir', Config::RELATIVE_PATHS) . '/' . LinterConfiguration::BINARY_FILE;
 
         if (!file_exists($phpCsBinary)) {
-            $phpCsBinary = 'php-cs-fixer';
+            $phpCsBinary = LinterConfiguration::BINARY_FILE;
         }
 
         $parsedConfig = self::parseAndPrepareArcConfig($phpCsBinary);
@@ -53,7 +54,7 @@ class ArcConfigParser
         }
 
         if (!isset($arcConfig['lint.php_cs_fixer.fix_paths'])) {
-            $arcConfig['lint.php_cs_fixer.fix_paths'] = [\LinterConfiguration::SRC_DIRECTORY];
+            $arcConfig['lint.php_cs_fixer.fix_paths'] = [LinterConfiguration::SRC_DIRECTORY];
         }
 
         if (!isset($arcConfig['lint.php_cs_fixer.php_cs_binary'])) {
@@ -61,7 +62,7 @@ class ArcConfigParser
         }
 
         if (!isset($arcConfig['lint.php_cs_fixer.php_cs_file'])) {
-            $arcConfig['lint.php_cs_fixer.php_cs_file'] = \LinterConfiguration::PHP_CS_FILE;
+            $arcConfig['lint.php_cs_fixer.php_cs_file'] = LinterConfiguration::PHP_CS_FILE;
         }
 
         if (!isset($arcConfig['lint.php_cs_fixer.unified_diff_format'])) {

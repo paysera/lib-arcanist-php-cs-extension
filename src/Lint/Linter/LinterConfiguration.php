@@ -3,8 +3,9 @@
 class LinterConfiguration
 {
     const SRC_DIRECTORY = 'src/';
+    const BIN_DIRECTORY = 'bin/';
     const PHP_CS_FILE = '.php_cs';
-    const BINARY_FILE = 'bin/paysera-php-cs-fixer';
+    const BINARY_FILE = 'paysera-php-cs-fixer';
 
     /**
      * @var string
@@ -29,7 +30,7 @@ class LinterConfiguration
     public function __construct()
     {
         $this->paths = [];
-        $this->binaryFile = self::BINARY_FILE;
+        $this->binaryFile = self::BIN_DIRECTORY . self::BINARY_FILE;
         $this->phpCsFile = self::PHP_CS_FILE;
         $this->unifiedDiffFormat = true;
     }

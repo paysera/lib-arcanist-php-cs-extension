@@ -18,7 +18,11 @@ final class PhpCsFixerLintEngine extends \ArcanistLintEngine
         $fixerPaths = $configManager
             ->getConfigFromAnySource('lint.php_cs_fixer.fix_paths', [LinterConfiguration::SRC_DIRECTORY]);
         $binaryPath = $configManager
-            ->getConfigFromAnySource('lint.php_cs_fixer.php_cs_binary', LinterConfiguration::BINARY_FILE);
+            ->getConfigFromAnySource(
+                'lint.php_cs_fixer.php_cs_binary',
+                LinterConfiguration::BIN_DIRECTORY . LinterConfiguration::BINARY_FILE
+            )
+        ;
 
         foreach ($paths as $key => $path) {
             if (!file_exists($this->getFilePathOnDisk($path))) {

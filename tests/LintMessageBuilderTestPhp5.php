@@ -4,7 +4,7 @@ namespace Paysera\Tests;
 
 use PHPUnit\Framework\TestCase;
 
-class LintMessageBuilderTest extends TestCase
+class LintMessageBuilderTestPhp5 extends TestCase
 {
     /**
      * @var \LintMessageBuilder
@@ -20,13 +20,13 @@ class LintMessageBuilderTest extends TestCase
     {
         parent::__construct($name, $data, $dataName);
 
-        if (PHP_VERSION_ID < 70100) {
-            $this->markTestSkipped('PHP 7.1 is required');
+        if (PHP_VERSION_ID >= 70100) {
+            $this->markTestSkipped('PHP 5 is required');
         }
     }
 
 
-    protected function setUp(): void
+    protected function setUp()
     {
         $this->guessLintMessageBuilder = new \LintMessageBuilder(false);
         $this->exactLintMessageBuilder = new \LintMessageBuilder(true);
